@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What Animal</title>
+</head>
+<body>
+  <h1>What Animal</h1>
+
+  <form id="animalForm">
+    <label>Animal name</label>
+    <select id="animal" name="animal">
+      <option value="cat">cat</option>
+      <option value="dog">dog</option>
+      <option value="bear">bear</option>
+    </select>
+
+    <label>How many pictures?</label>
+    <select id="count" name="count">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+    </select>
+
+    <label>Save to database?</label>
+    <select id="save" name="save">
+      <option value="no">no</option>
+      <option value="yes">yes</option>
+    </select>
+
+    <button>Submit</button>
+  </form>
+
+  <div id="result"></div>
+  <button id="lastButton" type="button">Get last saved picture</button>
+  <div id="lastResult"></div>
+
+  <script>
+    var form = document.getElementById("animalForm");
+    var animal = document.getElementById("animal");
+    var count = document.getElementById("count");
+    var save = document.getElementById("save");
+    var result = document.getElementById("result");
+    var lastButton = document.getElementById("lastButton");
+    var lastResult = document.getElementById("lastResult");
+
+    form.onsubmit = function (event) {
+      event.preventDefault();
+
+      var url = "/api/animals?animal=" + animal.value + "&count=" + count.value + "&save=" + save.value;
+
+      fetch(url)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          var html = "";
+          var i = 0;
+
+          html = html + "<p>Animal: " + data.animal + "</p>";
+          html = html + "<p>How many pictures: " + data.count + "</p>";
+          html = html + "<p>Save to database: " + data.save + "</p>";
+          html = html + "<p>Rows saved: " + data.saved + "</p>";
+
+          while (i < data.pictures.length) {
+            html = html + "<img src=\"" + data.pictures[i] + "\">";
+            i = i + 1;
+          }
+
+          result.innerHTML = html;
+        });
+    };
+
+    lastButton.onclick = function () {
+      var url = "/api/animals/last?animal=" + animal.value;
+
+      fetch(url)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          var html = "";
+
+          html = html + "<p>Last saved animal: " + data.animal + "</p>";
+
+          if (data.picture) {
+            html = html + "<img src=\"" + data.picture + "\">";
+          } else {
+            html = html + "<p>No saved picture found</p>";
+          }
+
+          lastResult.innerHTML = html;
+        });
+    };
+  </script>
+</body>
+</html>
